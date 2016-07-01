@@ -26,7 +26,7 @@ void pf(AVLNode* node)
 	//fprintf(file, "%d(%d) ", node->key, node->diff);
 	printf("%d(%d) ", node->key, node->diff);
 }
-void test()
+void main(int argc, char const *argv[])
 {
 	AVLNode* root = NULL;
 	AVLNode* node = createAVLNode(50, NULL);
@@ -56,16 +56,38 @@ void test()
 	node = createAVLNode(71, NULL);
 	insertAVLNode(&root, node);
 
-	node = createAVLNode(72, NULL);
+	node = createAVLNode(75, NULL);
 	insertAVLNode(&root, node);
 
-	node = createAVLNode(73, NULL);
+	node = createAVLNode(77, NULL);
 	insertAVLNode(&root, node);
 
 	node = createAVLNode(61, NULL);
 	insertAVLNode(&root, node);
 
+	node = createAVLNode(74, NULL);
+	insertAVLNode(&root, node);
 
+	node = createAVLNode(79, NULL);
+	insertAVLNode(&root, node);
+
+	levelTraversalAVLTree(root, pf);
+	printf("\n");
+
+
+	deleteKey(&root, 71);
+	levelTraversalAVLTree(root, pf);
+	printf("\n");
+
+	deleteKey(&root, 77);
+	levelTraversalAVLTree(root, pf);
+	printf("\n");
+
+	deleteKey(&root, 79);
+	levelTraversalAVLTree(root, pf);
+	printf("\n");
+
+		deleteKey(&root, 50);
 	levelTraversalAVLTree(root, pf);
 	printf("\n");
 }

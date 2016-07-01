@@ -1,9 +1,11 @@
 #include "avlTree.h"
-#include "common.h/common.h"
+#include "common/common.h"
 #include "queue/queue.h"
 
 #include <stdlib.h>
 #include <assert.h>
+
+#define max(a, b) (a > b ? a : b)
 
 static int updateDiff(AVLNode* node)
 {
@@ -141,7 +143,7 @@ AVLNode* findAVLNode(AVLNode* root, int key)
 	return NULL;
 }
 
-void deleteKey(AVLNode** root, int key)
+void* deleteKey(AVLNode** root, int key)
 {
 	AVLNode* node = findAVLNode(*root, key);
 	if (node) {
@@ -183,7 +185,7 @@ void levelTraversalAVLTree(AVLNode* root, void(*funcPtr)(AVLNode*))
 {
 	if (NULL == root)
 		return;
-	ArrayQueue* que = initQueue();
+	Queue* que = initQueue();
 	enQueue(que, root);
 	AVLNode *p;
 	while (0 == isEmpty(que)) {

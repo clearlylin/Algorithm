@@ -1,7 +1,8 @@
-#include "queue.h"
 
 #include <stdio.h>
 
+#define ARRAYQUEUE
+#include "queue.h"
 
 static int arr[] = { 1, 2, 3, 4, 5, 6, 7, 10, 34, 55, 61, 8, 100 };
 
@@ -38,7 +39,7 @@ int main(int argc, char const *argv[])
 	printf("queueSize: %d\n", queueSize(queue));
 	success = deQueue(queue, &ele);
 	if (success)
-		printf("%d, deQueue success", *ele);
+		printf("%d, deQueue success\n", *ele);
 	else
 		printf("deQueue error\n");
 
