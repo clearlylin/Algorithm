@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
 	int* ele;
 	success = deQueue(queue, &ele);
 	if (success)
-		printf("%d, deQueue success", ele);
+		printf("%d, deQueue success", *ele);
 	else
 		printf("error\n");
 	printf("isEmpty: %d\n", isEmpty(queue));
@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
 	printf("queueSize: %d\n", queueSize(queue));
 	success = deQueue(queue, &ele);
 	if (success)
-		printf("%d, deQueue success", ele);
+		printf("%d, deQueue success", *ele);
 	else
 		printf("deQueue error\n");
 

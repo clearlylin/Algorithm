@@ -2,6 +2,7 @@
 #include "linkQueue.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 LinkQueue* initQueue()
 {
