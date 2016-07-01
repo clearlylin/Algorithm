@@ -1,6 +1,6 @@
 #include "avlTree.h"
-#include "common.h"
-#include "queue.h"
+#include "common.h/common.h"
+#include "queue/queue.h"
 
 #include <stdlib.h>
 #include <assert.h>
