@@ -161,42 +161,167 @@ void insertNode(BSTree* tree, int key, void* value)
 	}
 }
 
-static BSNode* _findNode(BSNode* node, int m, int key)
+static BSNode* _findNode(BSNode* node, int key)
 {
 	if (node) {
-		int i = 0;
-		for(; i < m - 1; ++i) {
+		int i = 1;
+		for(; i <= node->keyNum; ++i) {
 			if (key == node->keys[i])
 				return node;
 			else if (key < node->keys[i])
-				return _findNode(node->children[i], m, key);
+				return _findNode(node->children[i-1], key);
 		}
-		return _findNode(node->children[m-1], m, key);
+		return _findNode(node->children[i-1], key);
 	}
 	return NULL;
 }
 
 BSNode* findNode(BSTree* tree, int key)
 {
-	return _findNode(tree->root, tree->mOrder, key);
+	return _findNode(tree->root, key);
 }
 
-static void _deleteKey(BSNode* node, int key, int m)
+//
+static int indexNode(BSNode* node)
 {
-	int min = (int)ceil((float)m/2) - 1;
-	if (node->keyNum - 1 >= min) {
-		int i = 2;
-		for(; i <= node->keyNum; ++i) {
+	int index = 0;
+	for(; index <= node->parent->keyNum; ++index)
+		if (node->parent->children[index] == node)
+			break;
+	return index;
+}
+
+static void adjustNode(BSTree* tree, BSNode* node)
+{
+	if (node->parent == NULL) {
+		if (node->keyNum == 0) {
+			free(node);
+			tree->root = NULL;
+		}
+		return;
+	}
+	int index = indexNode(node);
+	int i, min = (int)ceil((float)tree->mOrder/2) - 1;
+	BSNode *right = NULL, *left = NULL, *p = node->parent;
+	int keyIndex;
+	if (index + 1 <= p->keyNum)
+		right = p->children[index + 1];
+	if (index >= 1)
+		left = p->children[index - 1];
+	//borrow from right
+	if (right && right->keyNum > min) {
+		keyIndex = index + 1;
+		node->values[node->keyNum+1] = p->values[keyIndex];
+		node->keys[node->keyNum+1] = p->keys[keyIndex];
+		if (right->children[0]) {
+			node->children[node->keyNum+1] = right->children[0];
+			right->children[0]->parent = node;
+		}
+		p->keys[keyIndex] = right->keys[1];
+		p->values[keyIndex] = right->values[1];
+		right->children[0] = right->children[1];
+		for(i = 2;i <= right->keyNum; ++i) {
+			right->keys[i-1] = right->keys[i];
+			right->values[i-1] = right->values[i];
+			right->children[i-1] = right->children[i];
+		}
+		right->keyNum -= 1;
+		node->keyNum += 1;
+		return;
+	}
+	//borrow from left
+	if (left && left->keyNum > min) {
+		keyIndex = index;
+		for(i = node->keyNum; i > 0; --i) {
+			node->keys[i+1] = node->keys[i];
+			node->values[i+1] = node->values[i];
+			node->children[i+1] = node->children[i];
+		}
+		node->children[1] = node->children[0];
+		node->values[1] = p->values[keyIndex];
+		node->keys[1] = p->keys[keyIndex];
+		if (left->children[left->keyNum]) {
+			node->children[0] = left->children[left->keyNum];
+			node->children[0]->parent = node;
+		}
+		p->keys[keyIndex] = left->keys[left->keyNum];
+		p->values[keyIndex] = left->values[left->keyNum];
+		left->keyNum -= 1;
+		node->keyNum += 1;
+		return;
+	}
+	//merge parent with right
+	if (right) { //right has more than one keys.
+		keyIndex = index + 1;
+		int j = node->keyNum + 1;
+		node->keys[j] = p->keys[keyIndex];
+		node->values[j] = p->values[keyIndex];
+		for(i = keyIndex +1; i <= p->keyNum; ++i) {
+			p->keys[i-1] = p->keys[i];
+			p->values[i-1] = p->values[i];
+			p->children[i-1] = p->children[i];
+		}
+		j++;
+		for(i = 1; i <= right->keyNum; ++i) {
+			node->keys[j] = right->keys[i];
+			node->values[j] = right->values[i];
+			node->children[j-1] = right->children[i-1];
+			if (node->children[j-1])
+				node->children[j-1]->parent = node;
+			j++;
+		}
+		node->children[j-1] = right->children[i-1];
+		if (node->children[j-1])
+			node->children[j-1]->parent = node;
+		free(right);
+		p->keyNum -= 1;
+		node->keyNum = j - 1;
+		if (p == tree->root && p->keyNum == 0) {
+			tree->root = node;
+			free(p);
+			return;
+		}
+		if (p->keyNum < min)
+			adjustNode(tree, p);
+		return;
+	}
+	//merge parent with left
+	keyIndex = index;
+	left->keys[left->keyNum+1] = p->keys[keyIndex];
+	left->values[left->keyNum+1] = p->values[keyIndex];
+	for(i = keyIndex +1; i <= p->keyNum; ++i) {
+		p->keys[i-1] = p->keys[i];
+		p->values[i-1] = p->values[i];
+		p->children[i-1] = p->children[i];
+	}
+	left->keyNum +=1;
+	p->keyNum -= 1;
+	free(node);
+	if (p == tree->root) {
+		tree->root = left;
+		free(p);
+		return;
+	}
+	if (p->keyNum < min)
+		adjustNode(tree, p);
+}
+
+
+static void _deleteKey(BSTree* tree, BSNode* node, int key, int m)
+{
+	int i, min = (int)ceil((float)m/2) - 1;
+	for(i = 1; i <= node->keyNum; ++i) {
+		if (node->keys[i] > key) {
 			node->keys[i-1] = node->keys[i];
 			node->values[i-1] = node->values[i];
 		}
-		node->keyNum -= 1;
 	}
-	else {
-	}
+	node->keyNum -= 1;
+	if (node->keyNum < min)
+		adjustNode(tree, node);
 }
 
-void deleteKey(BSTree* tree, int key)
+void* deleteKey(BSTree* tree, int key)
 {
 	BSNode* node = findNode(tree, key);
 	if (node) {
@@ -213,10 +338,11 @@ void deleteKey(BSTree* tree, int key)
 			node->keys[i] = replace->keys[1];
 			replace->keys[1] = key;
 			replace->values[1] = value;
-			node = replace;
+			_deleteKey(tree, replace, key, tree->mOrder);
+			return value;
 		}
 		void* value = node->values[1];
-		_deleteKey(node, key, tree->mOrder);
+		_deleteKey(tree, node, key, tree->mOrder);
 		return value;
 	}
 	return NULL;
