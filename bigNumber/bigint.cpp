@@ -69,26 +69,48 @@ void BigInt::set(const string& s)
 	rmBeginZero(*this);
 }
 
+//consider positive and negative
+//and need consider the size
 bool operator<(const BigInt& left, const BigInt& right)
 {
+	if (right.positive && !left.positive)
+		return true;
+	if (!right.positive && left.positive)
+		return false;
+
+	if (right.positive && right.size > left.size)
+		return true;
+	if (right.positive && right.size < left.size)
+		return false;
+
+	if (!right.positive && right.size < left.size)
+		return true;
+	if (!right.positive && right.size > left.size)
+		return false;
+
 	for(int i = 0; i < left.size; ++i) {
 		if (left.v[i] < right.v[i])
-			return true;
+			return right.positive;
+
 		if (left.v[i] > right.v[i])
-			return false;
+			return !right.positive;
 	}
 	return false;
 }
 
-bool operator>(const BigInt& left, const BigInt& right)
+bool operator>=(const BigInt& left, const BigInt& right)
 {
+	if (left.size > right.size)
+		return true;
+	if (left.size < right.size)
+		return false;
 	for(int i = 0; i < left.size; ++i) {
 		if (left.v[i] > right.v[i])
 			return true;
-		if (left.v[i] < right.v[i])
+		else if (left.v[i] < right.v[i])
 			return false;
 	}
-	return false;
+	return true;
 }
 
 bool operator==(const BigInt& left, const BigInt& right)
@@ -166,7 +188,7 @@ BigInt operator-(const BigInt& left, const BigInt& right)
 		}
 		else {
 			v.resize(left.size, 0);
-			if (left > right) {
+			if (left >= right) {
 				result.positive = left.positive;
 				lptr = &left;
 				rptr = &right;
@@ -259,6 +281,42 @@ BigInt operator*(const BigInt& left, const BigInt& right)
 	return r;
 }
 
+static void divOperator(const BigInt& left, const BigInt& right, BigInt& qNum, BigInt& remain)
+{
+	if (left.size == right.size) {
+		if (left >= right) {
+			qNum = BigInt(1);
+			remain = left - right;
+			while(remain >= right) {
+			    remain = remain - right;
+			    ++qNum.v[0];
+			}
+		}
+		else {
+			qNum = BigInt(1);
+			remain = left;
+		}
+	}
+	else {
+		BigInt t10("10");
+		remain = BigInt(1);
+		vector<short> num;
+		for(int i = 0; i < left.size; ++i) {
+			char t = left.v[i] + '0';
+			remain = remain * t10 + BigInt(t);
+			short s  = 0;
+			while(remain >= right) {
+				remain = remain - right;
+				++s;
+			}
+			num.push_back(s);
+		}
+		qNum.v = num;
+		qNum.size = num.size();
+		rmBeginZero(qNum);
+	}
+}
+
 BigInt operator/(const BigInt& left, const BigInt& right)
 {
 	if (right.v[0] == 0)
@@ -268,47 +326,30 @@ BigInt operator/(const BigInt& left, const BigInt& right)
 
 	bool positive = left.positive == right.positive ? true : false;
 
-	if (right.size == left.size) {
-		 if(left > right) {
-		 	int s = 1;
-		 	//fuho
-		 	BigInt r = left - right;
-		 	while(r > right)
-		 	    r = r -right;
-		 	BigInt r(1);
-		 	r.positive = positive;
-		}
-		else if(left < right) {
-			return BigInt(1);
-		}
-		else {
-			BigInt r(1);
-			r.positive = positive;
-			r.v = vector<short>(1, 1);
-			return r;
-		}
-
-		int  s = 1;
-		BigInt r = left - right;
-		while(r.positive && r.size == right.size) {
-			r = r - right;
-			++s;
-		}
-		r.size = 1;
-		r.positive = positive;
-		r.v = r.positive ? vector<short>(1, s) : vector<short>(1, s - 1);
-		return r;
-	}
-	else {
-
-	}
-	return BigInt();
+    BigInt qNum, remain;
+    qNum.positive = positive;
+    divOperator(left, right, qNum, remain);
+    return qNum;
 }
 
 BigInt operator%(const BigInt& left, const BigInt& right)
 {
-	BigInt r;
-	return r;
+	if (right.v[0] == 0)
+		throw;
+
+	if (left.v[0] == 0)
+		return BigInt(1);
+
+	if (left.size < right.size)
+		return right;
+
+	bool positive = left.positive == right.positive ? true : false;
+
+    BigInt qNum, remain;
+    qNum.positive = positive;
+
+    divOperator(left, right, qNum, remain);
+    return remain;
 }
 
 ostream& operator<<(ostream& out, const BigInt& big)

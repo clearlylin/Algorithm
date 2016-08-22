@@ -66,5 +66,11 @@ int main(int argc, char const *argv[])
 	left.set(a), right.set(b);
 	r = left * right;
 	std::cout << r.getStr() << std::endl;
+
+	r = right / left;
+	std::cout << r.getStr() << std::endl;
+
+	r = right % left;
+	std::cout << r.getStr() << std::endl;
 	return 0;
 }

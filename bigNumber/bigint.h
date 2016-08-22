@@ -16,6 +16,7 @@ typedef struct BigInt
 	bool positive;
 	vector<short> v;
 	BigInt(int len = 0):size(len), positive(true), v(len, 0) {}
+	BigInt(char t):size(1), positive(true), v(1, t - '0') {}
 	BigInt(const string&);
 	BigInt(const BigInt&);
 
@@ -25,7 +26,7 @@ typedef struct BigInt
 
 bool operator<(const BigInt&, const BigInt&);
 
-bool operator>(const BigInt&, const BigInt&);
+bool operator>=(const BigInt&, const BigInt&);
 
 bool operator==(const BigInt&, const BigInt&);
 
