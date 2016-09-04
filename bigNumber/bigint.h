@@ -26,7 +26,10 @@ typedef struct BigInt
 
 bool operator<(const BigInt&, const BigInt&);
 
-bool operator>=(const BigInt&, const BigInt&);
+bool operator>=
+
+
+(const BigInt&, const BigInt&);
 
 bool operator==(const BigInt&, const BigInt&);
 
