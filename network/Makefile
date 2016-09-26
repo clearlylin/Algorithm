@@ -3,9 +3,9 @@ MAKE=make
 SUBDIR=v1 test
 CDIR=$(SUBDIR)
 
-object=log.o readWrite.o tcpWrap.o
+object=log.o readWrite.o sockwrap.o
 
-sources = log.c readWrite.c tcpWrap.c
+sources = log.c readWrite.c sockwrap.c
 
 all:$(object) $(SUBDIR)
 

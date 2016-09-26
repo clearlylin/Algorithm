@@ -17,6 +17,6 @@
 #include <syslog.h>
 
 
-typedef struct sockaddr SADDR
+typedef struct sockaddr SADDR;
 
 #endif

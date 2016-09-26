@@ -1,4 +1,4 @@
-#include "tcpWrap.h"
+#include "sockwrap.h"
 #include "log.h"
 
 int Socket(int family, int type, int protocol) {
@@ -45,21 +45,15 @@ void SetSock(struct sockaddr_in* sock, int port, const char* strIp) {
 	sock->sin_addr.s_addr = ip;
 }
 
-static void free(SocketAddr* ptr) {
-	if (ptr)
-		free(ptr->ip);
-	free(ptr);
-}
 
-SocketAddr* getSoketAddr(int fd) {
+void getSoketAddr(int fd, SocketAddr* sock) {
+	if (!sock) {
+		err_msg("sock is NULL");
+		return;
+	}
 	struct sockaddr_in client;
-	getsockname(fd, (SADDR*)&client, sizeof(SADDR));
-	char buf[20];
-	inet_ntop(AF_INET, &client.sin_addr, buf, 20);
-
-	SocketAddr* sock = (SocketAddr*)malloc(sizeof(SocketAddr));
-	sock->ip = (char*)malloc(strlen(buf));
-	memcpy(sock->ip, buf, strlen(buf));
+	socklen_t len;
+	getsockname(fd, (SADDR*)&client, &len);
+	inet_ntop(AF_INET, &client.sin_addr, sock->ip, 15);
 	sock->port = ntohs(client.sin_port);
-	sock->free = free;
 }

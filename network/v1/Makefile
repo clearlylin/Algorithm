@@ -1,5 +1,5 @@
 
-depend = ../log.o ../tcpWrap.o ../readWrite.o
+depend = ../log.o ../sockwrap.o ../readWrite.o
 
 all: client server
 

@@ -14,13 +14,10 @@ int Close(int sockfd);
 
 void SetSock(struct sockaddr_in* sock, int port, const char* strIp);
 
-
 typedef struct SocketAddr {
 	int port;
-	const char* ip;
-	void (*free)(struct SocketAddr* ptr);
+	char ip[15];
 } SocketAddr;
 
-
-SocketAddr* getSoketAddr(int fd);
+void getSoketAddr(int fd, SocketAddr* sock);
 
