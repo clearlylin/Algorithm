@@ -1,6 +1,6 @@
 
 MAKE=make
-SUBDIR=v1 test
+SUBDIR=v1 test v2
 CDIR=$(SUBDIR)
 
 object=log.o readWrite.o sockwrap.o
