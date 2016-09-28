@@ -25,7 +25,7 @@ void Listen(int sockfd, int backlog) {
 
 int Accept(int sockfd, struct sockaddr* clientAddr, socklen_t* addrlen) {
 	int fd = accept(sockfd, clientAddr, addrlen);
-	if (fd < 0)
+	if (fd < 0 && errno == EINTR)
 		err_quit("accept failed\n");
 	return fd;
 }

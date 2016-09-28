@@ -5,7 +5,7 @@ uint32_t readn(int fd, void* buf, uint32_t size) {
 	uint32_t left = size, has;
 	char* ptr = buf;
 	while(left > 0) {
-	    if ((has = read(fd, ptr, size)) < 0) {
+	    if ((has = read(fd, ptr, left)) < 0) {
 	    	if (errno != EINTR)
 	    		return -1;
 	    	has = 0;
@@ -30,12 +30,16 @@ uint32_t readline(int fd, void* buf, uint32_t size) {
 	    	has = 0;
 	    	continue;
 	    }
-	    else if(has == 0)
+	    else if(has == 0) {
+	    	*ptr = '\0';
 	    	return size - left;
+	    }
 	    left -= 1;
 	    *ptr++ = c;
-	    if (c == '\n')
+	    if (c == '\n') {
+	    	*ptr = '\0';
 	    	return size - left;
+	    }
 	}
 }
 
@@ -65,16 +69,21 @@ Again:
 
 uint32_t readline2(int fd, void* buf, uint32_t size) {
 	char c, *ptr = buf;
-	int ret, i = 1;
-	for(; i <= size; ++i) {
+	int ret, i = 0;
+	for(; i < size; ++i) {
 		if ((ret = read_Char(fd, &c)) < 0)
 			return -1;
-		else if(ret == 0)
+		else if(ret == 0) {
+			*ptr = '\0';
 			return i;
+		}
 		*ptr++ = c;
-		if (c == '\n')
-			return i;
+		if (c == '\n') {
+			*ptr = '\0';
+			return i + 1;
+		}
 	}
+	*ptr = '\0';
 	return size;
 }
 
@@ -83,7 +92,7 @@ uint32_t writen(int fd, void* buf, uint32_t size) {
 	char* ptr = buf;
 	left = size;
 	while(left > 0) {
-		if ((writes = write(fd, ptr, size)) <= 0) {
+		if ((writes = write(fd, ptr, left)) <= 0) {
 			if (writes < 0 && errno == EINTR) {
 				writes = 0;
 				continue;

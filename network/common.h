@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <signal.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -15,6 +16,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include <syslog.h>
+#include <fcntl.h>
 
 
 typedef struct sockaddr SADDR;

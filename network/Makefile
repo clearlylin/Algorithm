@@ -1,7 +1,8 @@
 
 MAKE=make
-SUBDIR=v1 test v2
+SUBDIR=v1 test v2 v3
 CDIR=$(SUBDIR)
+DEBUG = -g -O0
 
 object=log.o readWrite.o sockwrap.o
 
@@ -13,7 +14,7 @@ $(SUBDIR):ECHO
 	$(MAKE) -C $@
 
 $(object):
-	gcc -c $(sources)
+	gcc -c $(sources) $(DEBUG)
 
 ECHO:
 	@echo $(SUBDIR)
