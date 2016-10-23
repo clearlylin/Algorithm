@@ -17,6 +17,9 @@ void fastSort(int a[], int size);
 void shellSort(int a[], int size);
 
 
-void mergeSort(int a[], int size)
+void mergeSort(int a[], int size);
+
+
+void heapSort(int a[], int size);
 
 #endif

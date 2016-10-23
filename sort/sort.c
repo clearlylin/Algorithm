@@ -91,27 +91,70 @@ void shellSort(int a[], int size)
 }
 
 
-static void merge(int a[], int b1, int l1, int b2, int l2)
+static void merge(int a[], int low, int mid, int high)
 {
-	int* buf = (int*)malloc(sizeof(int) * (l1 + l2));
-	int i = b1, j = b2, k = 0;
-	while(i < b1 + l1 && j < b2 + l2) {
-		if(a[i] > a[j])
-			buf[k++] = a[j++];
-		else if(a[i] < a[j])
+	int *buf = (int*)malloc(sizeof(int) * (high - low + 1));
+	int i = low, j = mid + 1, k = 0;
+	while(i <= mid && j <= high) {
+		if(a[i] < a[j])
 			buf[k++] = a[i++];
-		else {
-			buf[k++] = a[i++];
+		else
 			buf[k++] = a[j++];
-		}
 	}
-	for(int i = 0; i < l1 + l2; ++i)
-		a[begin++] = buf[i];
+	while(i <= mid)
+		buf[k++] = a[i++];
+
+	while(j <= high)
+		buf[k++] = a[j++];
+
+	for(i = 0; i < k; ++i)
+		a[low++] = buf[i];
 	free(buf);
+}
+
+static void mergetSort_(int a[], int begin, int end)
+{
+	if (begin < end) {
+		int mid = (begin + end) / 2;
+		mergetSort_(a, begin, mid);
+		mergetSort_(a, mid + 1, end);
+		merge(a, begin, mid, end);
+	}
 }
 
 void mergeSort(int a[], int size)
 {
+	mergetSort_(a, 0, size - 1);
+}
 
+
+static void heapAjust(int a[], int low, int size)
+{
+	int lf = 2 * low + 1, tmp;
+	for(; lf < size; lf = 2 * lf + 1) {
+		if (lf < size - 1 && a[lf + 1] > a[lf])
+			++lf; //right bigger than left.
+		if (a[low] < a[lf]) {
+			//change value, check lf;
+			tmp = a[low];
+			a[low] = a[lf];
+			a[lf] = tmp;
+			low = lf;
+		}
+		else break;
+	}
+}
+
+void heapSort(int a[], int size)
+{
+	int i = size / 2 - 1, t;
+	for(; i >= 0; --i)
+		heapAjust(a, i, size);
+	for(i = size - 1; i > 0; --i) {
+		t = a[0];
+		a[0] = a[i];
+		a[i] = t;
+		heapAjust(a, 0, i);
+	}
 }
 
